@@ -34,11 +34,12 @@ class Tasks:
         """list returns list of uncompleted tasks sorted by the due date. If tasks have the same due date, sort by decreasing priority (1 is the highest priority). If tasks have no due date, then sort by decreasing priority.
         """
         print('\nID\tAge\tDue Date\tPriority\tTask') # prints the header
-        # need to sort
+        x = self._sort_tasks()
 
-        for obj in self.tasks:
-            age = date.today() - obj.created.date()
-            print(f'{obj.unique_id}\t{age.days}d\t{obj.due_date}\t{obj.priority}\t{obj.name}')
+        for obj in x:
+            if not hasattr(obj, 'completed'):
+                age = date.today() - obj.created.date()
+                print(f'{obj.unique_id}\t{age.days}d\t{obj.due_date}\t{obj.priority}\t{obj.name}')
 
     def report(self):
         """returns list of all tasks competed and incomplete. sorted by due date then by priority
@@ -148,15 +149,11 @@ class Tasks:
                 has_date.append(obj)
             else:
                 no_date.append(obj)
-        # return has_date
-        for obj in has_date:
-            print(obj)
-        print('\n\n')
+
         newlist_with_dates = sorted(has_date, key=lambda x: (x.due_date, x.priority))
         newlist_withOut_dates = sorted(no_date, key=lambda x: x.priority)
         sorted_List = newlist_with_dates + newlist_withOut_dates
-        # for obj in newlist:
-        #     print(obj)
+     
         return(sorted_List)
         
 

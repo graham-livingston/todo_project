@@ -2,6 +2,7 @@ import os
 import pickle
 import uuid
 from datetime import datetime
+from datetime import date
 import argparse
 
 
@@ -31,11 +32,25 @@ class Tasks:
             pickle.dump(self.tasks, f)  
     
     def list(self):
-        for objs in self.tasks:
-            print(objs)
+        """list returns list of uncompleted tasks sorted by the due date. If tasks have the same due date, sort by decreasing priority (1 is the highest priority). If tasks have no due date, then sort by decreasing priority.
+        """
+        print('\nID\tAge\tDue Date\tPriority\tTask') # prints the header
+        # need to sort
+        for obj in self.tasks:
+            age = date.today() - obj.created.date()
+            print(f'{obj.unique_id}\t{age.days}d\t{obj.due_date}\t{obj.priority}\t{obj.name}')
 
-    # def report(self):
-    #     pass
+    def report(self):
+        """returns list of all tasks competed and incomplete. sorted by due date then by priority
+        """
+        print('\nID\tAge\tDue Date\tPriority\tTask\tCreated\tCompleted') # prints the header
+        # need to sort
+        for obj in self.tasks:
+            age = date.today() - obj.created.date()
+            print(f'{obj.unique_id}\t{age.days}d\t{obj.due_date}\t{obj.priority}\t{obj.name}\t{obj.created}\t{obj.complted}')    
+    
+    # def delete(self):
+    #       pass
 
     # def done(self):
     #     pass
@@ -51,22 +66,18 @@ class Tasks:
             priority -- _description_
             due_date -- _description_
         """
-        
-        
-        newTask = Task(name, priority, due_date)
-        # print(f'new_task: {newTask}')
-        return self.tasks.append(newTask)
-        # print(self.tasks)
+        try:
+            newTask = Task(name, priority, due_date)
+            return self.tasks.append(newTask)
+        except:
+            raise AddError("There was an error in creating your task. Run 'todo -h' for usage instructions.")
 
     
     def _load_tasks(self):
         if os.path.isfile('.todo.pickle'):
         # look for the pickle file. and read it in if its found
             with open('.todo.pickle', 'rb') as f:
-                # task_list = []
                 tasks = pickle.load(f)
-                # for task in tasks:
-                #     task_list.append(task)
                 return tasks
         # if it's not found then go ahead and make one
         else:
@@ -80,12 +91,8 @@ class Tasks:
                     task_list.append(initialTask)
                     pickle.dump(task_list, f)
                 with open('.todo.pickle', 'rb') as f:  
-                    task_list = []
                     tasks = pickle.load(f)
-                    for task in tasks:
-                        task_list.append(task)
                     return tasks
-                # return (self._load_tasks())
             except:
                 raise DirectoryPermissionsError("Please provide read and write access to current working directory")
                     
@@ -135,6 +142,15 @@ class DirectoryPermissionsError(Exception):
         if self.message:
             return 'DirectoryPermissionsError, {0} '.format(self.message)
 
+class AddError(Exception):
+    """Exception raised for error when add fails"""
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        if self.message:
+            return 'DirectoryPermissionsError, {0} '.format(self.message)
 
 
 def main():
@@ -142,6 +158,7 @@ def main():
     """
     parser = argparse.ArgumentParser(description='update your ToDo list')
     parser.add_argument('--add', type=str, required=False, help='a task string to add to your list')
+    parser.add_argument('--delete', type=str, required=False, help='delete a task from your list')
     parser.add_argument('--priority', type=int, required=False, default=1, help='priority of task; default value is 1')
     parser.add_argument('--due', type=str, required=False, help='due date in dd.mm.yyyy HH:MM:SS format')
     parser.add_argument('--query', type=str, required=False, nargs="+", help='query by adding search terms')
@@ -161,6 +178,8 @@ def main():
         print(task_list)
     elif args.list:
         task_list.list() 
+    elif args.report:
+        task_list.report()
     
     task_list.pickle_tasks()
     exit()

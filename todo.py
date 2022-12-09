@@ -35,6 +35,7 @@ class Tasks:
         """
         print('\nID\tAge\tDue Date\tPriority\tTask') # prints the header
         # need to sort
+
         for obj in self.tasks:
             age = date.today() - obj.created.date()
             print(f'{obj.unique_id}\t{age.days}d\t{obj.due_date}\t{obj.priority}\t{obj.name}')
@@ -42,9 +43,11 @@ class Tasks:
     def report(self):
         """returns list of all tasks competed and incomplete. sorted by due date then by priority
         """
+        x = self._sort_tasks()
+
         print('\nID\tAge\tDue Date\tPriority\tTask\tCreated\tCompleted') # prints the header
-        # need to sort
-        for obj in self.tasks:
+        
+        for obj in x:
             age = date.today() - obj.created.date()
             if hasattr(obj, 'completed'):
                 print(f'{obj.unique_id}\t{age.days}d\t{obj.due_date}\t{obj.priority}\t{obj.name}\t{obj.created}\t{obj.completed}')    
@@ -97,7 +100,7 @@ class Tasks:
         # use regular expression to search for multiple words.
         pass
 
-    def add(self, name, priority, due_date=None):
+    def add(self, name, priority, due_date= None):
         """add _summary_
 
         Arguments:
@@ -138,7 +141,24 @@ class Tasks:
         # else raise an error that you don't have permission to make a .todo. file
 
     def _sort_tasks(self):
-        pass
+        has_date = []
+        no_date = []
+        for obj in self.tasks:
+            if obj.due_date != None:
+                has_date.append(obj)
+            else:
+                no_date.append(obj)
+        # return has_date
+        for obj in has_date:
+            print(obj)
+        print('\n\n')
+        newlist_with_dates = sorted(has_date, key=lambda x: (x.due_date, x.priority))
+        newlist_withOut_dates = sorted(no_date, key=lambda x: x.priority)
+        sorted_List = newlist_with_dates + newlist_withOut_dates
+        # for obj in newlist:
+        #     print(obj)
+        return(sorted_List)
+        
 
 
  
@@ -234,7 +254,7 @@ def main():
     # Read out arguments
     if args.add:
         print(f"we need to add {args.add} to the todo list with a priority of {args.priority}")
-        task_list.add(args.add, args.priority)
+        task_list.add(args.add, args.priority, args.due)
         print(task_list)
     elif args.list:
         task_list.list() 

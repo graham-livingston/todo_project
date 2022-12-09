@@ -46,8 +46,11 @@ class Tasks:
         # need to sort
         for obj in self.tasks:
             age = date.today() - obj.created.date()
-            print(f'{obj.unique_id}\t{age.days}d\t{obj.due_date}\t{obj.priority}\t{obj.name}\t{obj.created}\t{obj.complted}')    
-    
+            if hasattr(obj, 'completed'):
+                print(f'{obj.unique_id}\t{age.days}d\t{obj.due_date}\t{obj.priority}\t{obj.name}\t{obj.created}\t{obj.completed}')    
+            else:
+                print(f'{obj.unique_id}\t{age.days}d\t{obj.due_date}\t{obj.priority}\t{obj.name}\t{obj.created}\t-')    
+                
     def delete(self, submited_ID):
         """delete deletes a task from your task list using the unique ID
 
@@ -68,8 +71,26 @@ class Tasks:
         except:
             raise DeleteError("An error occured while trying to delete your item. Run 'todo -h' for usage instructions.")
     
-    # def done(self):
-    #     pass
+    def done(self, submitted_ID):
+        """done Marks a task from your task list as completed including the current date.
+
+        Arguments:
+            ID -- str matching the unique id of the item to remove
+        """
+        try: 
+            # get the index of the item 
+            n = 0
+            for task in self.tasks:
+                # print(task.unique_id)
+                if str(task.unique_id) != str(submitted_ID):
+                    n += 1
+                else:
+                    setattr(self.tasks[n], 'completed', date.today())
+                    return(self.tasks[n].completed)                
+
+        except:
+            raise CompletionError("An error occured while trying to mark your item as completed. Make sure the ID is correct. Run 'todo -h' for usage instructions.")
+        
 
     # def query(self):
     #     pass
@@ -128,17 +149,16 @@ class Task:
          - priority - int value of 1, 2, or 3; 1 is default
          - due date - date, this is optional """
 
-    def __init__(self, name, priority=1, due_date = None, completed = None):
+    def __init__(self, name, priority=1, due_date = None):
         """Instantiates a task object"""
         self.name = name
         self.priority = priority
         self.due_date = self._parseDueDate(due_date) 
         self.unique_id = uuid.uuid4() # Generate a unique id uuid.uuid4()
         self.created = datetime.now() # .timestamp() # self._time_created()
-        self.complted = completed
         
     def __str__(self):
-        return f'Name: {self.name}\nPriority: {self.priority}\nDue Date = {self.due_date}\nID: {self.unique_id}\nTime Created: {self.created}\nCompleted: {self.complted}'
+        return f'Name: {self.name}\nPriority: {self.priority}\nDue Date = {self.due_date}\nID: {self.unique_id}\nTime Created: {self.created}'
 
             
     def _parseDueDate(self, due_date):
@@ -178,6 +198,16 @@ class DeleteError(Exception):
         if self.message:
             return 'DirectoryPermissionsError, {0} '.format(self.message)
 
+class CompletionError(Exception):
+    """Exception raised for error when add fails"""
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        if self.message:
+            return 'DirectoryPermissionsError, {0} '.format(self.message)
+
 
 def main():
     """main _summary_
@@ -185,6 +215,7 @@ def main():
     parser = argparse.ArgumentParser(description='update your ToDo list')
     parser.add_argument('--add', type=str, required=False, help='a task string to add to your list')
     parser.add_argument('--delete', type=str, required=False, help='delete a task from your list using the unique ID')
+    parser.add_argument('--done', type=str, required=False, help='mark a task from your list as completed using the unique ID')
     parser.add_argument('--priority', type=int, required=False, default=1, help='priority of task; default value is 1')
     parser.add_argument('--due', type=str, required=False, help='due date in dd.mm.yyyy HH:MM:SS format')
     parser.add_argument('--query', type=str, required=False, nargs="+", help='query by adding search terms')
@@ -208,6 +239,8 @@ def main():
         task_list.report()
     elif args.delete:
         task_list.delete(args.delete)
+    elif args.done:
+        task_list.done(args.done)
     
     task_list.pickle_tasks()
     exit()

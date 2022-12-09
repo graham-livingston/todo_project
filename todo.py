@@ -92,8 +92,10 @@ class Tasks:
             raise CompletionError("An error occured while trying to mark your item as completed. Make sure the ID is correct. Run 'todo -h' for usage instructions.")
         
 
-    # def query(self):
-    #     pass
+    def query(self, query):
+        # search for word.
+        # use regular expression to search for multiple words.
+        pass
 
     def add(self, name, priority, due_date=None):
         """add _summary_
@@ -135,7 +137,8 @@ class Tasks:
                     
         # else raise an error that you don't have permission to make a .todo. file
 
-
+    def _sort_tasks(self):
+        pass
 
 
  
@@ -241,6 +244,8 @@ def main():
         task_list.delete(args.delete)
     elif args.done:
         task_list.done(args.done)
+    elif args.query:
+        task_list.done(args.query)
     
     task_list.pickle_tasks()
     exit()
@@ -252,15 +257,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# x = Tasks()
-# print(x)
-# with open('.todo.pickle', 'rb') as f:
-#     testList = pickle.load(f)
-#     newList = []
-#     for testObj in testList:
-#         newList.append(testObj)
-#     newObj = Task('To do List 2', 1, '12.8.2022 11:40:00')
-#     newList.append(newObj)
-#     for obj in newList:
-#         print(obj)

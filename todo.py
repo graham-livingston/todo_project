@@ -97,9 +97,22 @@ class Tasks:
         
 
     def query(self, query):
-        # search for word.
-        # use regular expression to search for multiple words.
-        pass
+        try:
+            seen = []
+            for task in self.tasks:
+                for q in query:
+                # print(task.name)
+                    if q.lower() == task.name.lower():
+                        seen.append(task)
+            if len(seen) > 0:
+                # print header
+                for task in seen:
+                    print(task)
+            else:
+                print('No results matching your search query')
+        except:
+            QueryError('There was an error with your query terms')
+                        
 
     def add(self, name, priority, due_date= None):
         """add _summary_
@@ -228,6 +241,16 @@ class CompletionError(Exception):
         if self.message:
             return 'DirectoryPermissionsError, {0} '.format(self.message)
 
+class QueryError(Exception):
+    """Exception raised for error when add fails"""
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        if self.message:
+            return 'DirectoryPermissionsError, {0} '.format(self.message)
+
 
 def main():
     """main _summary_
@@ -262,7 +285,7 @@ def main():
     elif args.done:
         task_list.done(args.done)
     elif args.query:
-        task_list.done(args.query)
+        task_list.query(args.query)
     
     task_list.pickle_tasks()
     exit()

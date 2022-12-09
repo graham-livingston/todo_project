@@ -19,7 +19,6 @@ class Tasks:
     def __init__(self):
         """Read pickled tasks file into a list"""
         # List of Task objects
-        tasks = []
         self.tasks = self._load_tasks()
 
     def __str__(self):
@@ -49,9 +48,26 @@ class Tasks:
             age = date.today() - obj.created.date()
             print(f'{obj.unique_id}\t{age.days}d\t{obj.due_date}\t{obj.priority}\t{obj.name}\t{obj.created}\t{obj.complted}')    
     
-    # def delete(self):
-    #       pass
+    def delete(self, submited_ID):
+        """delete deletes a task from your task list using the unique ID
 
+        Arguments:
+            ID -- str matching the unique id of the item to remove
+        """
+        try: 
+            # get the index of the item 
+            n = 0
+            for task in self.tasks:
+                # print(task.unique_id)
+                if str(task.unique_id) == str(submited_ID):
+                    # print(f'index: {n}')
+                    return self.tasks.pop(n)  
+                else:
+                    n += 1  
+
+        except:
+            raise DeleteError("An error occured while trying to delete your item. Run 'todo -h' for usage instructions.")
+    
     # def done(self):
     #     pass
 
@@ -152,13 +168,23 @@ class AddError(Exception):
         if self.message:
             return 'DirectoryPermissionsError, {0} '.format(self.message)
 
+class DeleteError(Exception):
+    """Exception raised for error when add fails"""
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        if self.message:
+            return 'DirectoryPermissionsError, {0} '.format(self.message)
+
 
 def main():
     """main _summary_
     """
     parser = argparse.ArgumentParser(description='update your ToDo list')
     parser.add_argument('--add', type=str, required=False, help='a task string to add to your list')
-    parser.add_argument('--delete', type=str, required=False, help='delete a task from your list')
+    parser.add_argument('--delete', type=str, required=False, help='delete a task from your list using the unique ID')
     parser.add_argument('--priority', type=int, required=False, default=1, help='priority of task; default value is 1')
     parser.add_argument('--due', type=str, required=False, help='due date in dd.mm.yyyy HH:MM:SS format')
     parser.add_argument('--query', type=str, required=False, nargs="+", help='query by adding search terms')
@@ -180,6 +206,8 @@ def main():
         task_list.list() 
     elif args.report:
         task_list.report()
+    elif args.delete:
+        task_list.delete(args.delete)
     
     task_list.pickle_tasks()
     exit()

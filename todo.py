@@ -252,7 +252,7 @@ class QueryError(Exception):
 
 
 def main():
-    """main _summary_
+    """main takes a user input from argparser and performs specified operations on the the tasks list object. 
     """
     parser = argparse.ArgumentParser(description='update your ToDo list')
     parser.add_argument('--add', type=str, required=False, help='a task string to add to your list')
@@ -272,7 +272,7 @@ def main():
     
     # Read out arguments
     if args.add:
-        print(f"we need to add {args.add} to the todo list with a priority of {args.priority}")
+        print(f"adding {args.add} to the todo list with a priority of {args.priority}")
         task_list.add(args.add, args.priority, args.due)
 
     elif args.list:
@@ -282,11 +282,11 @@ def main():
         task_list.report()
     
     elif args.delete:
-        print(f"we need to add {args.add} to the todo list with a priority of {args.priority}")
+        print(f"deleting the item with ID {args.delete}")
         task_list.delete(args.delete)
     
     elif args.done:
-        print(f"we need to add {args.add} to the todo list with a priority of {args.priority}")
+        print(f"marking the item {args.done} as completed")
         task_list.done(args.done)
     
     elif args.query:

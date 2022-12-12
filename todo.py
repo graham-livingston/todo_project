@@ -95,7 +95,6 @@ class Tasks:
         except:
             raise CompletionError("An error occured while trying to mark your item as completed. Make sure the ID is correct. Run 'todo -h' for usage instructions.")
         
-
     def query(self, query):
         try:
             seen = []
@@ -105,15 +104,18 @@ class Tasks:
                     if q.lower() == task.name.lower():
                         seen.append(task)
             if len(seen) > 0:
-                # print header
+                print('\nID\tAge\tDue Date\tPriority\tTask\tCreated\tCompleted') # prints the header
                 for task in seen:
-                    print(task)
+                    age = date.today() - task.created.date()
+                    if hasattr(task, 'completed'):
+                        print(f'{task.unique_id}\t{age.days}d\t{task.due_date}\t{task.priority}\t{task.name}\t{task.created}\t{task.completed}')    
+                    else:
+                        print(f'{task.unique_id}\t{age.days}d\t{task.due_date}\t{task.priority}\t{task.name}\t{task.created}\t-')    
             else:
                 print('No results matching your search query')
         except:
             QueryError('There was an error with your query terms')
                         
-
     def add(self, name, priority, due_date= None):
         """add _summary_
 
@@ -128,7 +130,6 @@ class Tasks:
         except:
             raise AddError("There was an error in creating your task. Run 'todo -h' for usage instructions.")
 
-    
     def _load_tasks(self):
         if os.path.isfile('.todo.pickle'):
         # look for the pickle file. and read it in if its found
@@ -152,8 +153,6 @@ class Tasks:
             except:
                 raise DirectoryPermissionsError("Please provide read and write access to current working directory")
                     
-        # else raise an error that you don't have permission to make a .todo. file
-
     def _sort_tasks(self):
         has_date = []
         no_date = []
@@ -191,9 +190,8 @@ class Task:
         self.created = datetime.now() # .timestamp() # self._time_created()
         
     def __str__(self):
-        return f'Name: {self.name}\nPriority: {self.priority}\nDue Date = {self.due_date}\nID: {self.unique_id}\nTime Created: {self.created}'
-
-            
+        return f'{self.unique_id}\t{self.due_date}\t{self.priority}\t{self.name}'
+          
     def _parseDueDate(self, due_date):
         if due_date == None:
             return None
@@ -201,6 +199,7 @@ class Task:
             # convert to datetime from user input. day.month.Year Hour:Min:Second
             date_time = datetime.strptime(due_date, '%d.%m.%Y %H:%M:%S')
             return date_time
+             
 class DirectoryPermissionsError(Exception):
     """Exception raised for error when current directory cannont be written or read from"""
 
@@ -275,15 +274,21 @@ def main():
     if args.add:
         print(f"we need to add {args.add} to the todo list with a priority of {args.priority}")
         task_list.add(args.add, args.priority, args.due)
-        print(task_list)
+
     elif args.list:
         task_list.list() 
+    
     elif args.report:
         task_list.report()
+    
     elif args.delete:
+        print(f"we need to add {args.add} to the todo list with a priority of {args.priority}")
         task_list.delete(args.delete)
+    
     elif args.done:
+        print(f"we need to add {args.add} to the todo list with a priority of {args.priority}")
         task_list.done(args.done)
+    
     elif args.query:
         task_list.query(args.query)
     
